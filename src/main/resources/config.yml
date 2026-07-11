@@ -1,0 +1,262 @@
+# ============================================================================
+# CrossTrade 2.2.0 主配置文件（UTF-8）
+# ============================================================================
+# 说明：
+# 1. 请使用支持 UTF-8 的编辑器保存，避免中文消息变成问号或乱码。
+# 2. 修改普通配置后可执行 /market admin reload；数据库文件、线程与依赖不会热重启。
+# 3. GUI 标题、按钮、槽位和按钮命令请修改同目录的 gui.yml。
+# 4. 颜色使用传统 & 颜色代码，例如 &a 绿色、&c 红色、&l 粗体、&r 重置。
+# 5. 金额不要填写 NaN、Infinity、负数或科学计数法，推荐使用普通十进制格式。
+# 6. config-version 由插件维护，请勿手动降低，否则可能影响后续配置迁移。
+config-version: 4
+
+# ----------------------------------------------------------------------------
+# 面对面交易
+# ----------------------------------------------------------------------------
+direct-trade:
+  # 交易请求有效时间，单位：秒。超时后必须重新发送请求。
+  request-timeout-seconds: 60
+  # 同一玩家再次发送交易请求前的冷却时间，单位：秒，用于防止刷屏。
+  request-cooldown-seconds: 5
+  # 双方确认后的安全倒计时，单位：秒。倒计时会显示在聊天栏。
+  confirm-countdown-seconds: 3
+  # 是否允许玩家潜行并右键另一名玩家发起交易。
+  sneak-right-click: true
+  # 玩家死亡时是否立即取消面对面交易并安全返还物品。
+  cancel-on-death: true
+  # 玩家切换世界时是否立即取消面对面交易并安全返还物品。
+  cancel-on-world-change: true
+  # true：允许只有一方提供物品或金额；false：双方都必须提供内容。
+  allow-one-sided: true
+  # 是否在交易 GUI 中显示玩家自己的 Vault 余额。
+  show-balance: true
+  # 单个玩家在一场面对面交易中最多可填写的金额。
+  max-money: 1000000000.00
+
+# 兼容 CrossTrade 1.x 的旧配置路径。
+# 新版本优先读取上方 direct-trade；仅建议旧服迁移时保留，不要在两处填写不同值。
+trade:
+  request-timeout: 60
+  confirm-countdown: 3
+  sneak-to-trade: true
+  allow-one-sided: true
+
+# ----------------------------------------------------------------------------
+# 玩家市场
+# ----------------------------------------------------------------------------
+market:
+  # 玩家市场总开关。关闭后面对面交易仍可使用。
+  enabled: true
+  # 每名玩家默认最多同时存在的有效上架数。
+  # crosstrade.market.listings.<数量> 权限可为指定玩家提高上限。
+  default-max-listings: 10
+  # 单次上架允许选择的最长天数。当前 GUI 默认提供 1 至 10 天按钮。
+  max-listing-days: 10
+  # 扫描过期商品的间隔，单位：秒；打开市场时还会执行惰性过期检查。
+  expiration-scan-seconds: 60
+  # 聊天输入商品名、数量或价格时的等待时间，单位：秒。
+  input-timeout-seconds: 60
+  # 购买冷却预留值，单位：毫秒。当前版本主要依靠玩家锁和商品锁防止重复点击。
+  purchase-cooldown-millis: 750
+  # true：商品到期并写入邮箱后，在线玩家会自动尝试领取可容纳的物品。
+  # 背包放不下的部分仍保留在永久邮箱中，绝不会掉落到地面。
+  auto-return-expired-items: true
+  # true：卖家在线时成交后立即尝试通过 Vault 入账；失败时继续保留在货款账本。
+  auto-pay-online-sellers: true
+  # 是否允许购买自己的商品。强烈建议保持 false，避免刷交易记录或绕过费用设计。
+  allow-own-purchase: false
+  # 分批购买兼容项。当前 2.2.0 固定支持买家选择购买数量。
+  allow-partial-purchase: true
+  # 每次成功上架收取的固定费用。0 表示关闭；需要 Vault 才能收取。
+  listing-fee: 0.00
+  # 成交税百分比，范围建议 0 至 100。例：5.00 表示扣除卖家所得的 5%。
+  transaction-tax-percent: 0.00
+
+# ----------------------------------------------------------------------------
+# 数值与数据大小限制
+# ----------------------------------------------------------------------------
+limits:
+  # 商品最低单价；拥有 crosstrade.market.bypass.price-limit 可绕过价格限制。
+  min-unit-price: 0.01
+  # 商品最高单价。
+  max-unit-price: 1000000000.00
+  # 单条商品最多托管的物品数量；补货后剩余数量也不能超过此值。
+  max-listing-quantity: 2304
+  # 市场商品名最大可见字符数；换行、控制字符和格式注入会被过滤。
+  max-market-name-length: 32
+  # 单个物品原型允许序列化的最大字节数。2,097,152 字节约为 2 MiB。
+  # 有大量复杂数据的容器可能超过限制并被拒绝上架。
+  max-serialized-item-bytes: 2097152
+
+# ----------------------------------------------------------------------------
+# 可上架物品规则
+# ----------------------------------------------------------------------------
+item-rules:
+  # 是否允许上架潜影盒等容器物品。
+  allow-container-items: true
+  # 是否允许上架内部装有物品的潜影盒。
+  allow-filled-shulker-boxes: true
+  # 是否允许上架已有耐久损耗的工具、武器和装备。
+  allow-damaged-items: true
+  # 是否允许带自定义名称、Lore、CustomModelData 或 PDC 的物品。
+  allow-custom-items: true
+  # 禁止上架的 Bukkit Material 名称，必须使用英文枚举并大写。
+  # 示例：blocked-materials: [BEDROCK, BARRIER, COMMAND_BLOCK]
+  blocked-materials: []
+  # Lore 中只要包含任一关键词就拒绝上架，不区分英文大小写。
+  # 示例：blocked-lore-keywords: ["不可交易", "绑定"]
+  blocked-lore-keywords: []
+  # 禁止包含指定 PDC 命名空间的物品，例如某自定义物品插件的 namespace。
+  # 示例：blocked-pdc-namespaces: ["myitems", "soulbound"]
+  blocked-pdc-namespaces: []
+
+# ----------------------------------------------------------------------------
+# SQLite 数据库
+# ----------------------------------------------------------------------------
+database:
+  # 数据库文件名，路径相对于 plugins/CrossTrade。修改后必须完整重启服务器。
+  file: data.db
+  # 是否启用 SQLite WAL 模式。建议保持 true，可改善读写并发和崩溃恢复能力。
+  wal: true
+  # 数据库忙碌时等待锁释放的最长时间，单位：毫秒。
+  busy-timeout-millis: 3000
+  # 每次启动前是否自动备份已有数据库。
+  backup-on-start: true
+  # 备份目录，路径相对于 plugins/CrossTrade。
+  backup-directory: backups
+
+# ----------------------------------------------------------------------------
+# 经济显示
+# ----------------------------------------------------------------------------
+economy:
+  # GUI 和消息中显示的货币符号，不会改变经济插件自身的货币名称。
+  currency-symbol: "$"
+  # 金额解析和显示的小数位数，通常使用 2；修改后应与经济插件精度保持一致。
+  decimal-places: 2
+
+# ----------------------------------------------------------------------------
+# 基岩版 / Floodgate
+# ----------------------------------------------------------------------------
+bedrock:
+  # 兼容预留总开关；是否能识别基岩玩家仍取决于服务器是否安装 Floodgate。
+  enabled: true
+  # true：识别到基岩玩家后优先使用 Floodgate 表单；false：优先使用箱子 GUI。
+  prefer-forms: true
+
+# ----------------------------------------------------------------------------
+# 审计日志
+# ----------------------------------------------------------------------------
+logging:
+  # 是否记录上架、购买、取消、补货和异常状态等交易审计事件。
+  transactions: true
+  # 审计日志路径，相对于 plugins/CrossTrade。
+  file: logs/transactions.log
+
+# ----------------------------------------------------------------------------
+# 声音注册表键
+# ----------------------------------------------------------------------------
+# 使用 Paper/Minecraft 声音键格式，例如 entity.player.levelup。
+# 当前 2.2.0 部分核心交易声音仍使用安全内置值，本节同时作为后续完全配置化的兼容项。
+sounds:
+  click: ui.button.click
+  confirm: block.note_block.pling
+  cancel: block.note_block.bass
+  success: entity.player.levelup
+  error: entity.villager.no
+  countdown: block.note_block.hat
+
+# ----------------------------------------------------------------------------
+# 玩家消息
+# ----------------------------------------------------------------------------
+# 支持 & 颜色代码。请保留消息中的 {占位符}，否则对应动态内容不会显示。
+# 常用占位符：
+# {player}=玩家名，{seconds}=秒数，{id}=记录编号，{amount}=数量或金额，
+# {item}=商品名，{symbol}=货币符号，{total}=总价，{buyer}=买家名。
+messages:
+  # 所有插件消息前统一添加的前缀。
+  prefix: "&8[&6CrossTrade&8] &r"
+  no-permission: "&c你没有权限执行此操作。"
+  player-not-found: "&c目标玩家不在线。"
+  cannot-trade-self: "&c不能与自己交易。"
+  already-trading: "&c你或对方已经在交易中。"
+  request-cooldown: "&c操作太快，请稍后再发送交易请求。"
+  trade-request-sent: "&a已向 &e{player} &a发送交易请求。"
+  trade-request-received: "&e{player} &a想与你交易。"
+  trade-request-replaced: "&e新的交易请求已替换上一条待处理请求。"
+  no-request: "&c没有有效的待处理交易请求。"
+  trade-accepted: "&a交易已开始。"
+  trade-denied: "&c交易请求已拒绝。"
+  trade-cancelled: "&c交易已取消，物品已经安全返还。"
+  trade-completed: "&a交易完成。"
+  trade-changed: "&e交易内容发生变化，双方需要重新确认。"
+  # 面对面交易聊天栏倒计时；{seconds} 为剩余秒数。
+  trade-countdown: "&e双方已确认，交易将在 &6{seconds} &e秒后完成。"
+  both-empty: "&c双方均未放入物品或金额。"
+  inventory-full: "&c背包空间不足，无法完成交易。"
+  economy-unavailable: "&c经济系统当前不可用，不能执行金钱交易。"
+  insufficient-balance: "&c余额不足。"
+  economy-failed: "&c经济操作失败，本次交易未完成。"
+  database-unavailable: "&c市场数据库暂时不可用，请稍后再试。"
+  market-disabled: "&c玩家市场当前已关闭。"
+  invalid-input: "&c输入无效，请重新操作。"
+  input-cancelled: "&e输入流程已取消。"
+  input-timeout: "&c输入超时，流程已取消。"
+  listing-created: "&a商品已成功上架，编号为 &e#{id}&a。"
+  listing-cancelled: "&a商品已下架并停止展示，剩余物品仍在安全托管，可补货、重新上架或删除返还。"
+  listing-restocked: "&a补货成功，已增加 &e{amount} &a个物品。"
+  listing-relisted: "&a商品已重新上架。"
+  listing-deleted: "&a商品记录已删除，仍在托管的剩余物品已进入待领取邮箱。"
+  inactive-cleared: "&a已清除 &e{amount} &a条下架商品记录，托管物品已安全返还。"
+  history-cleared: "&a已从你的页面清除 &e{amount} &a条交易记录。"
+  listing-unavailable: "&c商品已下架、售罄或数量不足。"
+  cannot-buy-own: "&c不能购买自己的商品。"
+  purchase-success: "&a成功购买 &f{amount} &a个 {item}&a，共支付 &6{symbol}{total}&a。"
+  seller-sale-notification: "&a{buyer} &7在你的店铺购买了 &f{amount} &7个 {item}&7，共支付 &6{symbol}{total}&7。货款已自动到账或进入货款保障。"
+  purchase-processing: "&e上一笔市场操作仍在处理中。"
+  mailbox-empty: "&e没有待领取物品。"
+  mailbox-claimed: "&a已领取 {amount} 个物品。"
+  earnings-empty: "&e没有待领取货款。"
+  earnings-claimed: "&a已领取货款 {symbol}{amount}。"
+  unsafe-review: "&c交易进入人工复核状态，请联系管理员并提供编号 #{id}。"
+  floodgate-unavailable: "&cFloodgate 当前不可用，将使用 Java 箱子界面。"
+
+# ----------------------------------------------------------------------------
+# 旧版 GUI 兼容回退
+# ----------------------------------------------------------------------------
+# 2.2.0 的主要 GUI 配置已迁移到 gui.yml。
+# 只有 gui.yml 缺少对应值时才会读取本节；新服管理员通常无需修改这里。
+gui:
+  filler:
+    material: BLACK_STAINED_GLASS_PANE
+    name: "&8"
+  secondary-filler:
+    material: GRAY_STAINED_GLASS_PANE
+    name: "&8"
+  home:
+    title: "&0CrossTrade &8| &7交易中心"
+  plaza:
+    title: "&0交易广场 &8| &7第 {page}/{pages} 页"
+  seller:
+    title: "&0{seller} 的店铺 &8| &7第 {page}/{pages} 页"
+  sell-select:
+    title: "&0选择要上架的物品"
+  sell-quantity:
+    title: "&0选择上架数量"
+  sell-duration:
+    title: "&0选择上架时间"
+  sell-confirm:
+    title: "&0确认上架"
+  buy-quantity:
+    title: "&0选择购买数量"
+  buy-confirm:
+    title: "&0确认购买"
+  mine:
+    title: "&0我的上架 &8| &7第 {page}/{pages} 页"
+  mailbox:
+    title: "&0待领取物品 &8| &7第 {page}/{pages} 页"
+  earnings:
+    title: "&0货款保障"
+  history:
+    title: "&0交易记录 &8| &7第 {page}/{pages} 页"
+  direct:
+    title: "&0面对面交易 &8| &7{player}"

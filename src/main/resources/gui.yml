@@ -1,0 +1,635 @@
+# ============================================================================
+# CrossTrade 2.2.0 GUI 配置文件（UTF-8）
+# ============================================================================
+# 修改后执行 /market admin reload 即可重载；正在打开的旧界面需重新进入才会更新。
+# 插件升级时只补充缺失默认项，不会主动覆盖服务器已有的 gui.yml。
+#
+# 页面通用字段：
+#   title    界面标题，支持 & 颜色代码和本页可用占位符。
+#   filler   自动填充所有空白、不可操作槽位的物品。
+#   buttons  本页静态按钮。商品、玩家头像、邮箱物品等动态内容由程序安全生成。
+#
+# 按钮字段：
+#   enabled: true/false       是否启用按钮，默认 true。
+#   slot: 0-53                箱子槽位，从 0 开始计数，超出范围会记录警告并跳过。
+#   material: MATERIAL        Paper/Bukkit 材质英文名，例如 CHEST、BARRIER。
+#   name: "&a名称"            显示名称，支持 & 颜色代码。
+#   lore: ["&7第一行"]        可选说明文字；不填写时保留程序生成的动态 Lore。
+#   permission: "权限节点"    可选；玩家无权限时不显示该按钮。
+#   action: 内部动作          调用 CrossTrade 原有功能，请勿随意拼写不存在的动作。
+#   commands: [...]           点击按钮时额外执行的命令或消息。
+#   run-internal-action       默认 true；false 表示只执行 commands，不执行 action。
+#   require-existing          默认 true；仅覆盖本状态下原本存在的按钮。
+#                             自建纯命令按钮应设为 false，或像无 action 按钮一样直接使用 commands。
+#
+# 槽位速查（6 行，每行 9 格）：
+#   第1行  0-8    第2行  9-17   第3行 18-26
+#   第4行 27-35   第5行 36-44   第6行 45-53
+#
+# commands 支持：
+#   - "[command] market"           玩家身份执行命令，不要写开头的 /。
+#   - "[player] market"            与 [command] 相同。
+#   - "[console] say {player}"     控制台身份执行命令，权限较高，请谨慎配置。
+#   - "[message] &a文字"           只给点击按钮的玩家发送消息。
+#   - "[close]"                    关闭当前界面。
+# 多条命令会按配置顺序执行。
+#
+# 通用占位符：
+#   {player}=点击者名称，{page}=当前页码，{listing_id}=商品编号，
+#   {seller_uuid}=卖家 UUID，{search}=当前搜索词。
+# 页面标题还可能使用 {pages}=总页数、{seller}=卖家名称。
+# 面对面交易页可使用 {other_player}=对方名称、{money}=当前填写金额。
+#
+# 安全说明：
+# 1. 当前所有箱子页面固定为 54 格，不能通过配置改变大小。
+# 2. 不要把确认、购买、删除等按钮放进动态商品区（通常是 0-44）。
+# 3. 修改 action 只会改变插件内部点击行为，不会绕过余额、库存、权限和数据库校验。
+# 4. 动态商品图标始终使用真实 ItemStack，潜影盒、PDC、附魔和 Lore 不会由本文件重建。
+config-version: 1
+
+pages:
+  # 交易中心：首页入口。你新增的 back_menu 会以玩家身份执行 QuickMenu 命令。
+  home:
+    title: '&0CrossTrade &8| &7交易中心'
+    filler:
+      material: BLACK_STAINED_GLASS_PANE
+      name: '&8'
+    buttons:
+      plaza:
+        slot: 11
+        material: PLAYER_HEAD
+        name: '&6&l交易广场'
+        action: plaza
+      sell:
+        slot: 13
+        material: CHEST
+        name: '&a&l上架新商品'
+        action: sell
+      mine:
+        slot: 15
+        material: BOOK
+        name: '&b&l我的上架'
+        action: mine
+      player-trade:
+        slot: 22
+        material: ENDER_EYE
+        name: '&d&l玩家交易'
+        action: player_trade
+      mailbox:
+        slot: 29
+        material: ENDER_CHEST
+        name: '&d&l待领取物品'
+        action: mailbox
+      earnings:
+        slot: 31
+        material: EMERALD
+        name: '&a&l货款保障'
+        action: earnings
+      history:
+        slot: 33
+        material: WRITABLE_BOOK
+        name: '&e&l交易记录'
+        action: history
+      back_menu:
+        slot: 48
+        material: ARROW
+        name: '&e&l返回主菜单'
+        commands:
+        - '[command] quickmenu open'
+      close:
+        slot: 50
+        material: BARRIER
+        name: '&c关闭'
+        action: close
+      command-example:
+        enabled: false
+        require-existing: false
+        slot: 47
+        material: COMMAND_BLOCK
+        name: '&e自定义命令示例'
+        commands:
+        - '[message] &a你好，{player}'
+        - '[command] market help'
+        run-internal-action: false
+
+  # 在线玩家选择页：动态区域显示除自己外的在线玩家头像。
+  player-trade:
+    title: '&0在线玩家交易 &8| &7第 {page}/{pages} 页'
+    filler:
+      material: BLACK_STAINED_GLASS_PANE
+      name: '&8'
+    buttons:
+      previous:
+        slot: 45
+        material: ARROW
+        name: '&a上一页'
+        action: player_trade_prev
+      back:
+        slot: 48
+        material: NETHER_STAR
+        name: '&e返回交易中心'
+        action: home
+      close:
+        slot: 50
+        material: BARRIER
+        name: '&c关闭'
+        action: close
+      next:
+        slot: 53
+        material: ARROW
+        name: '&a下一页'
+        action: player_trade_next
+
+  # 交易广场：按卖家聚合显示，头像和统计 Lore 由数据库动态生成。
+  plaza:
+    title: '&0交易广场 &8| &7第 {page}/{pages} 页'
+    filler:
+      material: BLACK_STAINED_GLASS_PANE
+      name: '&8'
+    buttons:
+      previous:
+        slot: 45
+        material: ARROW
+        name: '&a上一页'
+        action: plaza_prev
+      sort:
+        slot: 47
+        material: HOPPER
+        name: '&b切换排序'
+        action: sort_next
+      back:
+        slot: 48
+        material: NETHER_STAR
+        name: '&e返回交易中心'
+        action: home
+      close:
+        slot: 50
+        material: BARRIER
+        name: '&c关闭'
+        action: close
+      next:
+        slot: 53
+        material: ARROW
+        name: '&a下一页'
+        action: plaza_next
+
+  # 玩家店铺：显示指定卖家的有效商品；{seller} 为卖家名称。
+  seller:
+    title: '&0{seller} 的店铺 &8| &7第 {page}/{pages} 页'
+    filler:
+      material: BLACK_STAINED_GLASS_PANE
+      name: '&8'
+    buttons:
+      previous:
+        slot: 45
+        material: ARROW
+        name: '&a上一页'
+        action: seller_prev
+      sort:
+        slot: 47
+        material: HOPPER
+        name: '&b切换排序'
+        action: sort_next
+      back:
+        slot: 48
+        material: NETHER_STAR
+        name: '&e返回交易广场'
+        action: plaza
+      close:
+        slot: 50
+        material: BARRIER
+        name: '&c关闭'
+        action: close
+      next:
+        slot: 53
+        material: ARROW
+        name: '&a下一页'
+        action: seller_next
+
+  # 购买数量页：预设数量按钮和真实商品图标由程序生成，此处配置静态按钮。
+  buy-quantity:
+    title: '&0选择购买数量'
+    filler:
+      material: BLACK_STAINED_GLASS_PANE
+      name: '&8'
+    buttons:
+      custom:
+        slot: 31
+        material: WRITABLE_BOOK
+        name: '&b自定义数量'
+        action: buy_custom
+      back:
+        slot: 45
+        material: ARROW
+        name: '&e返回店铺'
+        action: seller_back
+      cancel:
+        slot: 53
+        material: BARRIER
+        name: '&c取消'
+        action: close
+
+  # 购买确认页：点击确认后仍会重新校验库存、余额、背包和商品版本。
+  buy-confirm:
+    title: '&0确认购买'
+    filler:
+      material: BLACK_STAINED_GLASS_PANE
+      name: '&8'
+    buttons:
+      confirm:
+        slot: 29
+        material: EMERALD_BLOCK
+        name: '&a&l确认购买'
+        action: buy_confirm
+      back:
+        slot: 33
+        material: BARRIER
+        name: '&c返回'
+        action: buy_back
+
+  # 上架选品页：0-44 格动态映射玩家背包中的物品，请不要放静态按钮覆盖该区域。
+  sell-select:
+    title: '&0选择要上架的物品'
+    filler:
+      material: BLACK_STAINED_GLASS_PANE
+      name: '&8'
+    buttons:
+      cancel:
+        slot: 49
+        material: BARRIER
+        name: '&c取消'
+        action: home
+
+  # 上架数量页：程序生成常用数量按钮，自定义数量会进入聊天输入。
+  sell-quantity:
+    title: '&0选择上架数量'
+    filler:
+      material: BLACK_STAINED_GLASS_PANE
+      name: '&8'
+    buttons:
+      custom:
+        slot: 31
+        material: WRITABLE_BOOK
+        name: '&b自定义数量'
+        action: sell_custom
+      cancel:
+        slot: 49
+        material: BARRIER
+        name: '&c取消'
+        action: cancel_input
+
+  # 上架时间页：程序按配置上限生成 1-10 天按钮。
+  sell-duration:
+    title: '&0选择上架时间'
+    filler:
+      material: BLACK_STAINED_GLASS_PANE
+      name: '&8'
+    buttons:
+      cancel:
+        slot: 49
+        material: BARRIER
+        name: '&c取消'
+        action: cancel_input
+
+  # 上架确认页：确认时才会重新扫描并准确扣除背包物品。
+  sell-confirm:
+    title: '&0确认上架'
+    filler:
+      material: BLACK_STAINED_GLASS_PANE
+      name: '&8'
+    buttons:
+      confirm:
+        slot: 29
+        material: EMERALD_BLOCK
+        name: '&a&l确认上架'
+        action: sell_confirm
+      cancel:
+        slot: 33
+        material: BARRIER
+        name: '&c取消'
+        action: cancel_input
+
+  # 我的上架：动态显示玩家自己的商品；清除按钮只处理安全的非活跃记录。
+  mine:
+    title: '&0我的上架 &8| &7第 {page}/{pages} 页'
+    filler:
+      material: BLACK_STAINED_GLASS_PANE
+      name: '&8'
+    buttons:
+      previous:
+        slot: 45
+        material: ARROW
+        name: '&a上一页'
+        action: mine_prev
+      back:
+        slot: 48
+        material: NETHER_STAR
+        name: '&e返回交易中心'
+        action: home
+      close:
+        slot: 50
+        material: BARRIER
+        name: '&c关闭'
+        action: close
+      clear:
+        slot: 51
+        material: LAVA_BUCKET
+        name: '&c清除已下架商品'
+        action: mine_clear_confirm
+      next:
+        slot: 53
+        material: ARROW
+        name: '&a下一页'
+        action: mine_next
+
+  # 批量清除确认页：仍在托管的剩余物品会进入待领取邮箱。
+  mine-clear:
+    title: '&0确认清除已下架商品'
+    filler:
+      material: BLACK_STAINED_GLASS_PANE
+      name: '&8'
+    buttons:
+      confirm:
+        slot: 22
+        material: LAVA_BUCKET
+        name: '&c&l确认清除'
+        action: mine_clear
+      back:
+        slot: 49
+        material: ARROW
+        name: '&e返回'
+        action: mine
+
+  # 单商品管理页：下架、重上架、补货、删除会按商品当前状态条件显示。
+  # cancel-listing 与 relist 使用同一槽位没有冲突，因为两者不会同时出现。
+  manage:
+    title: '&0管理商品 #{listing_id}'
+    filler:
+      material: BLACK_STAINED_GLASS_PANE
+      name: '&8'
+    buttons:
+      cancel-listing:
+        slot: 29
+        material: RED_CONCRETE
+        name: '&c&l下架商品'
+        action: listing_cancel_confirm
+      relist:
+        slot: 29
+        material: LIME_CONCRETE
+        name: '&a重新上架'
+        action: listing_relist
+      restock:
+        slot: 33
+        material: CHEST
+        name: '&a补货'
+        action: listing_restock
+      delete:
+        slot: 31
+        material: LAVA_BUCKET
+        name: '&c删除商品'
+        action: listing_delete_confirm
+      back:
+        slot: 49
+        material: ARROW
+        name: '&e返回我的上架'
+        action: mine
+
+
+  # 主动下架二次确认页：下架后库存继续托管，可补货、重新上架或删除返还。
+  listing-cancel:
+    title: '&0确认下架商品 #{listing_id}'
+    filler:
+      material: BLACK_STAINED_GLASS_PANE
+      name: '&8'
+    buttons:
+      confirm:
+        slot: 31
+        material: RED_CONCRETE
+        name: '&c&l确认下架'
+        action: listing_cancel
+      back:
+        slot: 49
+        material: ARROW
+        name: '&e返回'
+        action: manage
+
+  # 删除商品二次确认页：仅删除玩家侧记录，托管物品会安全写入邮箱。
+  listing-delete:
+    title: '&0确认删除商品 #{listing_id}'
+    filler:
+      material: BLACK_STAINED_GLASS_PANE
+      name: '&8'
+    buttons:
+      confirm:
+        slot: 31
+        material: LAVA_BUCKET
+        name: '&c&l确认删除'
+        action: listing_delete
+      back:
+        slot: 49
+        material: ARROW
+        name: '&e返回'
+        action: manage
+
+  # 补货页：只接受与原商品完整相似的背包物品，包括容器内容和 PDC。
+  restock:
+    title: '&0补货商品 #{listing_id}'
+    filler:
+      material: BLACK_STAINED_GLASS_PANE
+      name: '&8'
+    buttons:
+      custom:
+        slot: 31
+        material: WRITABLE_BOOK
+        name: '&b自定义数量'
+        action: restock_custom
+      back:
+        slot: 49
+        material: ARROW
+        name: '&e返回'
+        action: manage
+
+  # 重新上架时间页：价格和物品不改变，只重新选择有效期。
+  relist-duration:
+    title: '&0重新上架 #{listing_id}'
+    filler:
+      material: BLACK_STAINED_GLASS_PANE
+      name: '&8'
+    buttons:
+      back:
+        slot: 49
+        material: ARROW
+        name: '&e返回'
+        action: manage
+
+  # 待领取物品：动态内容来自 SQLite；背包放不下的部分会继续留在邮箱。
+  mailbox:
+    title: '&0待领取物品 &8| &7第 {page}/{pages} 页'
+    filler:
+      material: BLACK_STAINED_GLASS_PANE
+      name: '&8'
+    buttons:
+      previous:
+        slot: 45
+        material: ARROW
+        name: '&a上一页'
+        action: mail_prev
+      back:
+        slot: 48
+        material: NETHER_STAR
+        name: '&e返回交易中心'
+        action: home
+      claim-all:
+        slot: 50
+        material: CHEST
+        name: '&a全部领取'
+        action: mail_claim_all
+      next:
+        slot: 53
+        material: ARROW
+        name: '&a下一页'
+        action: mail_next
+
+  # 货款保障：正常成交优先自动到账，这里主要领取失败、离线或补偿款项。
+  earnings:
+    title: '&0货款保障'
+    filler:
+      material: BLACK_STAINED_GLASS_PANE
+      name: '&8'
+    buttons:
+      claim:
+        slot: 31
+        material: EMERALD_BLOCK
+        name: '&a&l领取全部货款'
+        action: earnings_claim
+      back:
+        slot: 45
+        material: ARROW
+        name: '&e返回'
+        action: home
+
+  # 交易记录：清除只对当前玩家隐藏，不删除审计数据，也不影响交易对方。
+  history:
+    title: '&0交易记录 &8| &7第 {page}/{pages} 页'
+    filler:
+      material: BLACK_STAINED_GLASS_PANE
+      name: '&8'
+    buttons:
+      previous:
+        slot: 45
+        material: ARROW
+        name: '&a上一页'
+        action: history_prev
+      back:
+        slot: 48
+        material: NETHER_STAR
+        name: '&e返回交易中心'
+        action: home
+      close:
+        slot: 50
+        material: BARRIER
+        name: '&c关闭'
+        action: close
+      clear:
+        slot: 51
+        material: LAVA_BUCKET
+        name: '&c清除交易记录'
+        action: history_clear_confirm
+      next:
+        slot: 53
+        material: ARROW
+        name: '&a下一页'
+        action: history_next
+
+  # 清除交易记录二次确认页。
+  history-clear:
+    title: '&0确认清除交易记录'
+    filler:
+      material: BLACK_STAINED_GLASS_PANE
+      name: '&8'
+    buttons:
+      confirm:
+        slot: 22
+        material: LAVA_BUCKET
+        name: '&c&l确认清除'
+        action: history_clear
+      back:
+        slot: 31
+        material: ARROW
+        name: '&e返回'
+        action: history
+
+  # 容器只读预览：内部物品不可拿取；{listing_id} 为市场商品编号。
+  container:
+    title: '&0只读容器预览 &8| &7#{listing_id}'
+    filler:
+      material: GRAY_STAINED_GLASS_PANE
+      name: '&8'
+    buttons:
+      back:
+        slot: 49
+        material: ARROW
+        name: '&e返回'
+        action: container_back
+
+  # 面对面交易：双方各自看到独立界面，物品区域和金额按钮均受安全监听保护。
+  # confirm 不指定材质和名称，目的是保留程序根据确认状态生成的动态外观。
+  direct:
+    title: '&0面对面交易 &8| &7{player}'
+    filler:
+      material: BLACK_STAINED_GLASS_PANE
+      name: '&8'
+    buttons:
+      confirm:
+        slot: 38
+        action: direct_confirm
+      cancel:
+        slot: 40
+        material: BARRIER
+        name: '&c&l取消交易'
+        action: direct_cancel
+      add-1:
+        slot: 45
+        material: LIME_STAINED_GLASS_PANE
+        name: '&a+1'
+        action: direct_add_1
+      add-10:
+        slot: 46
+        material: GREEN_STAINED_GLASS_PANE
+        name: '&2+10'
+        action: direct_add_10
+      add-100:
+        slot: 47
+        material: YELLOW_STAINED_GLASS_PANE
+        name: '&e+100'
+        action: direct_add_100
+      add-1000:
+        slot: 48
+        material: CYAN_STAINED_GLASS_PANE
+        name: '&b+1000'
+        action: direct_add_1000
+      clear-money:
+        slot: 49
+        material: BARRIER
+        name: '&c金额清零'
+        action: direct_clear
+      sub-1:
+        slot: 50
+        material: YELLOW_STAINED_GLASS_PANE
+        name: '&e-1'
+        action: direct_sub_1
+      sub-10:
+        slot: 51
+        material: ORANGE_STAINED_GLASS_PANE
+        name: '&6-10'
+        action: direct_sub_10
+      sub-100:
+        slot: 52
+        material: RED_STAINED_GLASS_PANE
+        name: '&c-100'
+        action: direct_sub_100
+      sub-1000:
+        slot: 53
+        material: MAGENTA_STAINED_GLASS_PANE
+        name: '&5-1000'
+        action: direct_sub_1000

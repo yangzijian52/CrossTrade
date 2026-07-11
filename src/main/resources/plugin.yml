@@ -1,0 +1,57 @@
+name: CrossTrade
+version: '${project.version}'
+main: com.crosstrade.CrossTrade
+api-version: '1.21'
+softdepend: [Vault, floodgate]
+authors: [yangzijian52]
+description: Paper 26.2 安全面对面交易与玩家市场插件
+
+commands:
+  trade:
+    description: 发起面对面交易或打开玩家市场
+    usage: /trade <玩家|market>
+    aliases: [ct, crosstrade]
+  tradeaccept:
+    description: 接受当前面对面交易请求
+    usage: /tradeaccept
+    aliases: [ta, accepttrade]
+  tradedeny:
+    description: 拒绝当前面对面交易请求
+    usage: /tradedeny
+    aliases: [td, denytrade]
+  market:
+    description: 打开和管理玩家市场
+    usage: /market help
+    aliases: [ah, pm]
+
+permissions:
+  crosstrade.use:
+    description: 允许使用 CrossTrade
+    default: true
+  crosstrade.direct:
+    description: 允许使用面对面交易
+    default: true
+  crosstrade.market.use:
+    description: 允许浏览玩家市场
+    default: true
+  crosstrade.market.buy:
+    description: 允许购买玩家商品
+    default: true
+  crosstrade.market.sell:
+    description: 允许上架玩家商品
+    default: true
+  crosstrade.market.listings.10:
+    description: 允许同时上架 10 个商品
+    default: true
+  crosstrade.market.admin:
+    description: 允许管理玩家市场
+    default: op
+  crosstrade.market.bypass.blacklist:
+    description: 绕过市场物品黑名单
+    default: op
+  crosstrade.market.bypass.price-limit:
+    description: 绕过市场价格限制
+    default: op
+  crosstrade.admin:
+    description: CrossTrade 旧版管理员权限兼容节点
+    default: op
