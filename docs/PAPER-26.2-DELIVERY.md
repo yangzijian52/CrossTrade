@@ -19,12 +19,8 @@
 - `src/main/resources/gui.yml`
 - `src/main/resources/plugin.yml`
 - `README.md`
-- `CHANGELOG.md`
 - `LICENSE`
 - `docs/TEST-REPORT.md`
-- `docs/SPIGOTMC-RESOURCE.md`
-- `docs/SPIGOTMC-RESOURCE-BBCODE.txt`
-- `docs/SPIGOTMC_MANUAL_PUBLISHING.md`
 
 ## 安装提醒
 
