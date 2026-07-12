@@ -6,11 +6,34 @@
 
     <groupId>com.crosstrade</groupId>
     <artifactId>CrossTrade</artifactId>
-    <version>2.2.0</version>
+    <version>2.2.1</version>
     <packaging>jar</packaging>
 
     <name>CrossTrade</name>
     <description>Paper 26.2 secure direct trade and player marketplace</description>
+    <url>https://github.com/yangzijian52/CrossTrade</url>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://opensource.org/license/mit</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>yangzijian52</id>
+            <name>yangzijian52</name>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:https://github.com/yangzijian52/CrossTrade.git</connection>
+        <developerConnection>scm:git:https://github.com/yangzijian52/CrossTrade.git</developerConnection>
+        <url>https://github.com/yangzijian52/CrossTrade</url>
+        <tag>HEAD</tag>
+    </scm>
 
     <properties>
         <java.version>25</java.version>
