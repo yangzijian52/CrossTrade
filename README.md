@@ -26,7 +26,7 @@ CrossTrade 2.2.0 已于 2026-07-11 在 Paper 26.2 目标服务器完成实际加
 
 本项目已作为免费资源发布到 SpigotMC，许可证为 MIT。
 
-- SpigotMC 资源页：https://www.spigotmc.org/resources/crosstrade.137003/
+- [SpigotMC Resources](https://www.spigotmc.org/resources/crosstrade.137003/)
 - 许可证：`LICENSE`
 
 SpigotMC 资源页和支持渠道按英文维护，不提供中文支持；服务器管理员仍可自行修改 `config.yml`、`gui.yml` 中的玩家提示和 GUI 文案。
