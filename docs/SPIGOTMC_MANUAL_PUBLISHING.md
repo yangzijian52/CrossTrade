@@ -12,6 +12,7 @@ This file is for the manual SpigotMC upload step. The resource should be publish
 ## Upload Package
 
 - Upload file: `target/CrossTrade-2.2.1.jar`
+- Published SpigotMC resource: `https://www.spigotmc.org/resources/crosstrade.137003/`
 - GitHub release: `https://github.com/yangzijian52/CrossTrade/releases/tag/v2.2.1`
 - Source code: `https://github.com/yangzijian52/CrossTrade`
 - License file: `LICENSE`
