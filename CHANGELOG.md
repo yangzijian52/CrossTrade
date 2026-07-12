@@ -3,7 +3,7 @@
 ## 2.2.1 - 2026-07-12
 
 - Added MIT license metadata and repository license file.
-- Added SpigotMC publishing materials, including BBCode description and manual publishing checklist.
+- Added SpigotMC publishing materials, including a resource-page BBCode file, a full documentation BBCode file and a manual publishing checklist.
 - Documented that the SpigotMC resource and support channel are English-only.
 - Kept the plugin behavior unchanged from 2.2.0.
 

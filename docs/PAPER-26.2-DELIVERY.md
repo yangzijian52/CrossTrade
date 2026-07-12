@@ -22,7 +22,8 @@
 - `CHANGELOG.md`
 - `LICENSE`
 - `docs/TEST-REPORT.md`
-- `docs/SPIGOTMC_BBCODE.txt`
+- `docs/SPIGOTMC-RESOURCE.md`
+- `docs/SPIGOTMC-RESOURCE-BBCODE.txt`
 - `docs/SPIGOTMC_MANUAL_PUBLISHING.md`
 
 ## 安装提醒

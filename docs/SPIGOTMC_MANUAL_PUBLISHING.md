@@ -16,7 +16,8 @@ This file is for the manual SpigotMC upload step. The resource should be publish
 - Source code: `https://github.com/yangzijian52/CrossTrade`
 - License file: `LICENSE`
 - Changelog: `CHANGELOG.md`
-- BBCode description: `docs/SPIGOTMC_BBCODE.txt`
+- Resource page BBCode: `docs/SPIGOTMC-RESOURCE.md`
+- Documentation BBCode: `docs/SPIGOTMC-RESOURCE-BBCODE.txt`
 
 ## Suggested SpigotMC Fields
 
@@ -46,8 +47,9 @@ This file is for the manual SpigotMC upload step. The resource should be publish
 2. Confirm `target/CrossTrade-2.2.1.jar` exists.
 3. Open the GitHub release and copy the download link.
 4. Create or update the SpigotMC resource manually.
-5. Paste `docs/SPIGOTMC_BBCODE.txt` into the SpigotMC description field.
+5. Paste `docs/SPIGOTMC-RESOURCE.md` into the SpigotMC resource description field.
 6. Upload `target/CrossTrade-2.2.1.jar`.
 7. Select free resource pricing.
 8. Add the GitHub source and license links.
-9. After publishing, verify the public page shows the English-only support notice.
+9. Paste `docs/SPIGOTMC-RESOURCE-BBCODE.txt` into the SpigotMC documentation/update text where appropriate.
+10. After publishing, verify the public page shows the English-only support notice.
